@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
     // Transfer data (arr_cpu) to device 
     host_to_dev();
 
-
+    cudaDeviceSynchronize();
     cudaEventRecord(stop); cudaEventSynchronize(stop); cudaEventElapsedTime(&h2dTime, start, stop);
     cudaEventRecord(start);
     
@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
     // Perform the bitonic sort
     bitonic_sort();
 
-
+    cudaDeviceSynchronize();
     cudaEventRecord(stop); cudaEventSynchronize(stop); cudaEventElapsedTime(&gpuTime, start, stop);
     cudaEventRecord(start);
 
@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
     // Transfer sorted data back to host (copied to arrSortedGpu)
      arrSortedGpu = dev_to_host();
 
-
+    cudaDeviceSynchronize();
     cudaEventRecord(stop); cudaEventSynchronize(stop); cudaEventElapsedTime(&d2hTime, start, stop);
 
     auto startTime = std::chrono::high_resolution_clock::now();
