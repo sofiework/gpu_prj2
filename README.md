@@ -135,7 +135,7 @@ Gradescope will do two verification steps:
     
 - Verify that you submitted a report.pdf file and a submission.zip file.
 
-- Verify that the code you wrote in kernel.cu is in the correct locations within the file.
+- Verify that the code you wrote in bitonic.cu is in the correct locations within the file.
 
 >Gradescope will NOT run and grade your code. It isn’t capable of doing this since we are using GPUs on the project. Gradescope will not “read” your report.
 
