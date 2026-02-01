@@ -33,3 +33,7 @@ void bitonic_sort();
 // preferred approach.
 DTYPE *dev_to_host();
 
+// Function to perform cleanup memory and anythong else the student's
+// preferred approach requires.
+void cleanup();
+

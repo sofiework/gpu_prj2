@@ -79,8 +79,9 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    free(arrCpu);
-    free(arrSortedGpu);
+    // Cleanup - free memory, etc.
+    cleanup();
+
 
     if (match)
         printf("\033[1;32mFUNCTIONAL SUCCESS\n\033[0m");

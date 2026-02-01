@@ -5,21 +5,14 @@
  * 
  */
 
-
-
 #include "main.h"
 #include "student.h"
-
-
 
 /**********************************************************************************
  * 
  * Implement your GPU device kernel(s) here (e.g., the bitonic sort kernel).
  * 
  **********************************************************************************/
-
- 
-
 
 /**********************************************************************************
  * 
@@ -44,7 +37,6 @@
 void host_to_dev()
 {
 
- 
 }
 
 /**
@@ -54,7 +46,6 @@ void host_to_dev()
 void bitonic_sort()
 {
 
- 
 }
 
 /**
@@ -62,8 +53,19 @@ void bitonic_sort()
  */
 DTYPE *dev_to_host()
 {
-
-    // You may modify the return value as long as it is a DTYPE pointer to the 
-    // GPU sorted array and is the correct size
+    // Default value.  You can return any pointer you wish based on
+    // your implementation.
     return arrSortedGpu;
+}
+
+/**
+ * This function frees memory and anything else the student requires 
+ * before exiting the program
+ */
+void cleanup(){
+    
+    // You may modify/remove these as needed to make your implementation work
+    // properly. The defaults provided here allow the skeleton code to compile.    
+    free(arrCpu);
+    free(arrSortedGpu);
 }

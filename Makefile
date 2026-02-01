@@ -1,5 +1,4 @@
 NVCC      = nvcc
-NVCCFLAGS = -O3
 LIBS      = -lcudart
 TARGET    = a.out
 OBJS      = main.o bitonic.o
