@@ -59,7 +59,7 @@ split operations. Successive bitonic split operations are applied on the decompo
 
 To achieve a bitonic sequence, we start with a sequence of length 2 and apply Bitonic merge to obtain bitonic sequences of length 2. The process involves alternating between ascending and descending order to transform an unsorted array into a bitonic sequence. This serves as the initial step before applying further Bitonic merge operations to eventually achieve a fully sorted sequence.
 
-    BitonicSort(n) = BM(2) + BM(4) + . . BM(n) = O(log 2n)
+    BitonicSort(n) = BM(2) + BM(4) + . . BM(n) = O(log^2 n)
 
  ![Bitonic Sort from https://hwlang.de/algorithmen/sortieren/bitonic/bitonicen.htm](https://hwlang.de/algorithmen/sortieren/bitonic/binetzen.gif)
 
@@ -72,9 +72,9 @@ You need to implement bitonic sort in CUDA. Pseudo code for bitonic sort algorit
 for i=1 to (log n) do
     for j=i-1 down to 0 do
         for k=0 to n do #loop through the array
-            a = arr[k]; b = arr[k XOR 2 j];
-            if (k XOR 2j) > k then # (a,b) are compared so skip (b,a) case
-                if (2i & k) is 0 then
+            a = arr[k]; b = arr[k XOR 2^j];
+            if (k XOR 2^j) > k then # (a,b) are compared so skip (b,a) case
+                if (2^i & k) is 0 then
                     Compare_Exchange↑ with (a, b)
                 else
                     Compare_Exchange↓ with (a, b)
@@ -83,16 +83,16 @@ for i=1 to (log n) do
 endfor
 ```
 
-The outer loop sequentially traverses the stages of the Bitonic sort algorithm. Each iteration corresponds to the execution of the BM(2i) operation, resulting in the generation of sorted sequences with lengths of 2i. The inner loop performs multiple bitonic splits essential for completing a bitonic merge operation.
+The outer loop sequentially traverses the stages of the Bitonic sort algorithm. Each iteration corresponds to the execution of the BM(2^i) operation, resulting in the generation of sorted sequences with lengths of 2^i. The inner loop performs multiple bitonic splits essential for completing a bitonic merge operation.
 
-The **compare exchange** swaps elements. The sorting strategy ( (2i & k) = 0 check) arranges even chunks (sub-sequences of length 2i) in ascending order and odd chunks in descending order, forming a 2i+1 bitonic sequence for the subsequent ith iteration.
+The **compare exchange** swaps elements. The sorting strategy ( (2^i & k) = 0 check) arranges even chunks (sub-sequences of length 2^i) in ascending order and odd chunks in descending order, forming a 2^{i+1} bitonic sequence for the subsequent iteration.
 
 ```
 Compare_Exchange↑: if (arr[i] > arr[j])
                         arr[i], arr[j] = arr[j], arr[i]
 ```
 
-The XOR operation determines the indices of the two elements to be compared during the jth iteration. For instance, if i = 2 and j = 2 (first sub-stage of BM(8)), XORing 0 with 4 yields 4, 1 gives 5, and so forth. To gain a better understanding, it is encouraged to experiment with various values of i and j and compare your results with the image in the previous page. In simpler terms, XOR strides the rank by 2j, providing the indices required for comparing elements during the algorithm's iterations.
+The XOR operation determines the indices of the two elements to be compared during the jth iteration. For instance, if i = 2 and j = 2 (first sub-stage of BM(8)), XORing 0 with 4 yields 4, 1 gives 5, and so forth. To gain a better understanding, it is encouraged to experiment with various values of i and j and compare your results with the image in the previous page. In simpler terms, XOR strides the rank by 2^j, providing the indices required for comparing elements during the algorithm's iterations.
 
 ## Task #2
 ### CUDA Optimizations
@@ -100,7 +100,7 @@ We move on to optimizing our parallel program using our learnings from lectures 
 
 >This kernel exhibits low compute throughput and memory bandwidth utilization relative to the peak performance of this device.”
 
-Shared memory to rescue: If a subsequence of size 2 s fits into the shared memory of a block, process steps s,s-1 . . .1 of the bitonic sort on the shared memory to reduce global accesses and also kernel launches. Break down your kernel into two: one with the shared memory and another with the global memory.
+Shared memory to rescue: If a subsequence of size 2^s fits into the shared memory of a block, process steps s,s-1 . . .1 of the bitonic sort on the shared memory to reduce global accesses and also kernel launches. Break down your kernel into two: one with the shared memory and another with the global memory.
 
 For the performance evaluation, we will run your solution with a 100M (100,000,000) element array size. We will evaluate a few times and take the best run to avoid any server load issues. We will run your code on the H100 in PACE. Be sure to explicitly select the H100 when creating an instance for you final performance testing runs.
 
@@ -112,7 +112,7 @@ You can use NVIDIA ncu to get these metric:
 
 #### Memory Throughput
 ```
-ncu -- metric
+ncu --metric
 gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed
 --print-summary per-gpu a.out 10000000
 ```
