@@ -23,6 +23,16 @@ the code in this Git repository.
 
 >To Debug code: `make debug` will compile with flags -g -G to allow use of cuda-gdb.
 
+#### Using the Grading Script
+Once your code is fuctional, you can run a copy of the grading script to see your code's performance and the score you would receive. The grading script assumes you will submit a satisfactory report and includes the one point for for the report in the score. 
+
+Running the grading script:
+```
+python grade.py bitonic.cu
+```
+> For development purposes, the grading script will accept any name for the bitonic.cu file.  Your submission to GS will require you to submit bitonic.cu ans student.h as noted below.
+
+
 ### Writing Code
 You will modify two files to implement your solution.
 
