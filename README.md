@@ -30,8 +30,7 @@ Running the grading script:
 ```
 python grade.py bitonic.cu
 ```
-> For development purposes, the grading script will accept any name for the bitonic.cu file.  Your submission to GS will require you to submit bitonic.cu ans student.h as noted below.
-
+> For development purposes, the grading script will accept any name for the bitonic.cu file.  Your submission to GS will require you to submit bitonic.cu and student.h as noted below.
 
 ### Writing Code
 You will modify two files to implement your solution.
