@@ -24,7 +24,7 @@ the code in this Git repository.
 >To Debug code: `make debug` will compile with flags -g -G to allow use of cuda-gdb.
 
 #### Using the Grading Script
-Once your code is fuctional, you can run a copy of the grading script to see your code's performance and the score you would receive. The grading script assumes you will submit a satisfactory report and includes the one point for for the report in the score. 
+Once your code is fuctional, you can run the grading script, `grade.py`, to see your code's performance and the score you would receive. The grading script assumes you will submit a satisfactory report and includes the one point for for the report in the score. 
 
 Running the grading script:
 ```
@@ -42,6 +42,8 @@ You will modify two files to implement your solution.
 - student.h - student modifiable values and a place for storing any custom values you create
 
 >bitonic.cu and student.h will be the only two files submitted for grading. Therefore, do not modify any other files as part of your solution.
+
+>The other files provided from the GitHub repository are the same files that will be used in the grading environment.
 
 ## Background
 The straightforward implementation of merge sort on a GPU can exhibit suboptimal runtime due to the nature of the algorithm. As each iteration reduces the active threads by half and the last iteration involves merging the entire array, it leads to inefficient parallelization. This reduction in active threads hinders the GPU's ability to fully exploit its
@@ -181,11 +183,11 @@ functionally correct.
 
 |Evaluation metric | Max Credit | Calculation             |
 |----------------- | ---------- | ------------------------|
-| Achieved Occupancy | 1 | Achieved Occupancy >= 70% |
-| Memory Throughput | 1 | Memory Throughput >= 80%|
+| Achieved Occupancy | 1 | Achieved Occupancy >= 65% |
+| Memory Throughput | 1 | Memory Throughput >= 75%|
 | **Performance Option 1** |
 |Million elements per second (meps) | 14 | if meps > 900 min( (meps/1000)*14, 14)
-| ** Performance Option 2 ** |
+| **Performance Option 2** |
 | Kernel time (ms) | 10 | min( (80/kernelTime)*10, 10) |
 | Memory Transfer Time D2H + H2D | 4 | min((30/memTime)*4, 4) |
 
