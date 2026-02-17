@@ -174,7 +174,7 @@ If your code is not parallel code, you will get only 20% of functional correctne
 
 2. Performance (16 pts)
 
-We will go through your code to make sure the appropriate parallel programming practices discussed in the class are being followed along with the right CUDA functions being called. The evaluation metrics will be run for 100M array size. Please make sure your implementation is robust at this scale. Note: off-loading compute operations (e.g. final ‘merge’) to CPU is not allowed.
+We will go through your code to make sure the appropriate parallel programming practices discussed in the class are being followed along with the right CUDA functions being called. Please make sure your implementation is robust at this scale. Note: off-loading compute operations (e.g. final ‘merge’) to CPU is not allowed.
 
 >Note: multi-threaded host code is not permitted.
 
@@ -183,11 +183,11 @@ functionally correct.
 
 |Evaluation metric | Max Credit | Calculation             |
 |----------------- | ---------- | ------------------------|
-| Achieved Occupancy | 1 | Achieved Occupancy >= 65% |
-| Memory Throughput | 1 | Memory Throughput >= 75%|
-| **Performance Option 1** |
+| Achieved Occupancy (10M) | 1 | Achieved Occupancy >= 65% |
+| Memory Throughput (10M)| 1 | Memory Throughput >= 75%|
+| **Performance Option 1 - 100M elements** |
 |Million elements per second (meps) | 14 | if meps > 900 min( (meps/1000)*14, 14)
-| **Performance Option 2** |
+| **Performance Option 2 - 100M elements** |
 | Kernel time (ms) | 10 | min( (80/kernelTime)*10, 10) |
 | Memory Transfer Time D2H + H2D | 4 | min((30/memTime)*4, 4) |
 
