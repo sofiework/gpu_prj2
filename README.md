@@ -115,9 +115,9 @@ Shared memory to rescue: If a subsequence of size 2^s fits into the shared memor
 
 For the performance evaluation, we will run your solution with a 100M (100,000,000) element array size. We will evaluate a few times and take the best run to avoid any server load issues. We will run your code on the H100 in PACE. Be sure to explicitly select the H100 when creating an instance for you final performance testing runs.
 
-Please try to optimize the programs to make # of million elements per second (meps) as high as possible. You will get full points when achieving 900 million elements per second.
+Please try to optimize the programs to make # of million elements per second (meps) as high as possible. You will get full points when achieving 1000 million elements per second.
 
-To encourage you to get familiar with the NVIDIA profiling toolkit, we also evaluate the ‘Memory Throughput’ and ‘Achieved Occupancy’. If you have multiple kernels in your implementation, we will take the average of all the kernels. You are expected to get Memory Throughput higher than 80% and ‘Achieved Occupancy’ higher than 70% on an H100 GPU.
+To encourage you to get familiar with the NVIDIA profiling toolkit, we also evaluate the ‘Memory Throughput’ and ‘Achieved Occupancy’ using arrays of 10M elements. If you have multiple kernels in your implementation, we will take the average of all the kernels. You are expected to get Memory Throughput higher than 80% and ‘Achieved Occupancy’ higher than 70% on an H100 GPU.
 
 You can use NVIDIA ncu to get these metric:
 
