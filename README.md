@@ -178,7 +178,7 @@ We will go through your code to make sure the appropriate parallel programming p
 
 >Note: Multi-threaded host code is not permitted.
 
->Note: The use of static/global initialization to allocate or initializate data structures (likely arrays) is not permitted. This is because this techniques reserves memory for your data structure before main() executes, which violates the requirement that your code is executed within the timers present in main.cu.
+>Note: The use of static/global initialization to allocate or initializate data structures (likely arrays) is not permitted. This is because this technique reserves memory for the data structure before `main()` executes, which violates the requirement that your code is executed within the timers present in `main.cu`.
 
 >Note: You can only get performance points when your implementation is
 functionally correct.
