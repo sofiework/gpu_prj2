@@ -74,8 +74,6 @@ To achieve a bitonic sequence, we start with a sequence of length 2 and apply Bi
 
  ![Bitonic Sort from https://hwlang.de/algorithmen/sortieren/bitonic/bitonicen.htm](https://hwlang.de/algorithmen/sortieren/bitonic/binetzen.gif)
 
-
-
 ## Task #1
 You need to implement bitonic sort in CUDA. Pseudo code for bitonic sort algorithm to sort n elements:
 
@@ -160,8 +158,23 @@ The program will be graded on the correctness and usage of the required parallel
 
 The script used to grade is provided (grade.py) to evaluate the score locally. All submissions are evaluated using H100 GPUs in the PACE-ICE cluster. Be sure to explicitly select the H100 when creating an instance.
 
->Start the assignment early to circumvent a last-minute rush to secure a node on the pace-ice cluster.
+>Start the assignment early to avoid a last-minute rush to secure a node on the pace-ice cluster. **Extensions will not be granted because you could not get a node on the ICE cluster.**
 
+### Correctness
+
+We will go through your code to ensure the appropriate parallel programming and CUDA programming practices discussed in the class are being followed along with the right CUDA functions being called. Please ensure your implementation is robust at this scale. 
+
+As a general statement, any code whose intent is to avoid the timers is not permitted. The following are examples of coding practices that are not permitted. Note that this list is not exhaustive:
+
+- Off-loading compute operations (e.g. final ‘merge’) to CPU
+- Multi-threaded host code
+- Executing any GPU-related code outside of the timed sections
+    - Static/global initialization to allocate or initializate data structures. This technique reserves memory for the data structure before `main()` executes, which violates the requirement that your code is executed within the timers present in `main.cu`.
+- Ignoring performance protocols such as serialization in the program.
+
+**Any non-permitted implementation will be penalizes severly up to and including a zero for the whole project.**
+
+### Grading Rubric
 Grading consists of the following components:
 
 1. Functional correctness (5 pts)
@@ -173,12 +186,6 @@ Each test case of array size will give 1 pts. “FUNCTIONAL SUCCESS” is printe
 If your code is not parallel code, you will get only 20% of functional correctness (i.e., 1 pt)
 
 2. Performance (16 pts)
-
-We will go through your code to make sure the appropriate parallel programming practices discussed in the class are being followed along with the right CUDA functions being called. Please make sure your implementation is robust at this scale. Note: off-loading compute operations (e.g. final ‘merge’) to CPU is not allowed.
-
->Note: Multi-threaded host code is not permitted.
-
->Note: The use of static/global initialization to allocate or initializate data structures (likely arrays) is not permitted. This is because this technique reserves memory for the data structure before `main()` executes, which violates the requirement that your code is executed within the timers present in `main.cu`.
 
 >Note: You can only get performance points when your implementation is
 functionally correct.
@@ -201,7 +208,6 @@ functionally correct.
 where 80ms or less is ideal and full credit of 10 points is given and time spent transporting data to and from the GPU where 30ms or less is ideal and full credit of 4 points is given.
 - You will receive the higher score of the two options.
 
-> Note: Points will be deducted for ignoring performance protocols; **serialization in the program will lead to a zero on the whole assignment.**
 
 3. Report (1 pt)
 
@@ -217,7 +223,7 @@ effectiveness of each
 graphs.) You will use 11 pt. Times New roman or Arial fonts. These rules
 are in place so that you write enough (but no too much) in your report.
 
->You must submit a report to receive a grade. Submissions without a report
+>You must submit a proper report to receive a grade. Submissions without a report
 will earn zero points for this project. Remember that this is a graduate level
 course and graduate level work is expected.
 
