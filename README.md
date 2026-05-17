@@ -176,7 +176,9 @@ If your code is not parallel code, you will get only 20% of functional correctne
 
 We will go through your code to make sure the appropriate parallel programming practices discussed in the class are being followed along with the right CUDA functions being called. Please make sure your implementation is robust at this scale. Note: off-loading compute operations (e.g. final ‘merge’) to CPU is not allowed.
 
->Note: multi-threaded host code is not permitted.
+>Note: Multi-threaded host code is not permitted.
+
+>Note: The use of static/global initialization to allocate or initializate data structures (likely arrays) is not permitted. This is because this technique reserves memory for the data structure before `main()` executes, which violates the requirement that your code is executed within the timers present in `main.cu`.
 
 >Note: You can only get performance points when your implementation is
 functionally correct.
@@ -267,4 +269,4 @@ some metrics that you probably need:
 - [CUDA Programming Guide](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html)
 
 
-Version: December 17, 2025
+Version: May 16, 2025
