@@ -40,7 +40,7 @@ def run(build_dir, size):
     return None
 
 def run_ncu_metric(build_dir, metric, size):
-    ncu_command = f"ncu --metric {metric} --print-summary per-gpu ./a.out {size}"
+    ncu_command = f"ncu --metrics {metric} --print-summary per-gpu ./a.out {size}"
     ncu_process = subprocess.Popen(ncu_command, shell=True, cwd=build_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     ncu_output, _ = ncu_process.communicate()
     last_numbers = [float(match.group(3)) for match in re.finditer(rf"{metric}.*?(\d+\.\d+).*?(\d+\.\d+).*?(\d+\.\d+)", ncu_output)]

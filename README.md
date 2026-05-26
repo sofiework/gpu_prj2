@@ -115,21 +115,18 @@ For the performance evaluation, we will run your solution with a 100M (100,000,0
 
 Please try to optimize the programs to make # of million elements per second (meps) as high as possible. You will get full points when achieving 1000 million elements per second.
 
-To encourage you to get familiar with the NVIDIA profiling toolkit, we also evaluate the ‘Memory Throughput’ and ‘Achieved Occupancy’ using arrays of 10M elements. If you have multiple kernels in your implementation, we will take the average of all the kernels. You are expected to get Memory Throughput higher than 80% and ‘Achieved Occupancy’ higher than 70% on an H100 GPU.
+To encourage you to get familiar with the NVIDIA profiling toolkit, we also evaluate the ‘Memory Throughput’ and ‘Achieved Occupancy’ using arrays of 10M elements. If you have multiple kernels in your implementation, we will take the average of all the kernels. You are expected to get Memory Throughput 70% or higher and ‘Achieved Occupancy’ 65% or higher on an H100 GPU.
 
 You can use NVIDIA ncu to get these metric:
 
 #### Memory Throughput
 ```
-ncu --metric
-gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed
---print-summary per-gpu a.out 10000000
+ncu --metrics gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed --print-summary per-gpu a.out 10000000
 ```
 
 #### Achieved Occupancy
 ```
-ncu --metric sm__warps_active.avg.pct_of_peak_sustained_active --
-print-summary per-gpu a.out 10000000
+ncu --metrics sm__warps_active.avg.pct_of_peak_sustained_active --print-summary per-gpu a.out 10000000
 ```
 
 ## What to submit:
