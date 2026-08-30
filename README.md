@@ -47,7 +47,7 @@ You will modify two files to implement your solution.
 
 ## Background
 The straightforward implementation of merge sort on a GPU can exhibit suboptimal runtime due to the nature of the algorithm. As each iteration reduces the active threads by half and the last iteration involves merging the entire array, it leads to inefficient parallelization. This reduction in active threads hinders the GPU's ability to fully exploit its
-parallel processing capabilities. As an exercise (not required for the assignment), you can write a CUDA program to perform a straightforward parallelization of the mergesort algorithm using <<< N, M >>> kernels. What does the ‘Achieved Occupancy’ look like for kernel launches in the later iterations on NSight?
+parallel processing capabilities. As an exercise (not required for the assignment), you can write a CUDA program to perform a straightforward parallelization of the mergesort algorithm using <<< N, M >>> kernels. What does the 'Achieved Occupancy' look like for kernel launches in the later iterations on NSight?
 
 Divide and conquer, an effective paradigm for parallel algorithms, involves breaking a problem into smaller subproblems solved recursively, enabling concurrent processing. Mergesort, an optimal sequential sorting algorithm utilizing divide and conquer, serves as inspiration for parallel sorting algorithms like Bitonic sort. Bitonic sort efficiently maintains parallelism, making it well-suited for GPU architectures. Another notable approach is Batcher's odd-even merge sort, leveraging a sorting network for effective
 parallelism in sorting operations.
@@ -163,13 +163,14 @@ We will go through your code to ensure the appropriate parallel programming and 
 
 As a general statement, any code whose intent is to avoid the timers is not permitted. The following are examples of coding practices that are not permitted. Note that this list is not exhaustive:
 
-- Off-loading compute operations (e.g. final ‘merge’) to CPU
+- Off-loading compute operations (e.g. final 'merge') to CPU
 - Multi-threaded host code
 - Executing any GPU-related code outside of the timed sections
     - Static/global initialization to allocate or initializate data structures. This technique reserves memory for the data structure before `main()` executes, which violates the requirement that your code is executed within the timers present in `main.cu`.
 - Ignoring performance protocols such as serialization in the program.
+- Using static constructors or any other mechanism to do work outside of the functions provided in bitonic.cu.
 
-**Any non-permitted implementation will be penalizes severly up to and including a zero for the whole project.**
+**Any non-permitted implementation will be penalized severly up to and including a zero for the whole project.**
 
 ### Grading Rubric
 Grading consists of the following components:
@@ -178,7 +179,7 @@ Grading consists of the following components:
 
 We will check whether the sorting results match the expected results for the input array of sizes 2K, 10K, 100K, 1M, 10M.
 
-Each test case of array size will give 1 pts. “FUNCTIONAL SUCCESS” is printed on the terminal for passing cases.
+Each test case of array size will give 1 pts. "FUNCTIONAL SUCCESS" is printed on the terminal for passing cases.
 
 If your code is not parallel code, you will get only 20% of functional correctness (i.e., 1 pt)
 
