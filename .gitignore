@@ -1,3 +1,4 @@
 # Ignore a testing solution, if present
 student_solution.h
-bitonic_solution.cu
+bitonic_solution.cua.out
+*.o
