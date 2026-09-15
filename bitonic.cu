@@ -237,6 +237,7 @@ void bitonic_sort()
         }
 
     }
+    printf("Running NAIVE approach\n");
 
     // // OPTIMIZATION
 
