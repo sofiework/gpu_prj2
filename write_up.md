@@ -131,76 +131,116 @@ Sync threads after each stride done.
 
 ##### Write back to global memory
 
+### Memory transfer optimization
 #### Profile
-Achieved Occupancy: 57.98
-Memory Throughput: 36.32
+###### ncu
+==PROF== Disconnected from process 17772
+[17772] a.out@127.0.0.1
+  Device 0, CC 9.0
+    bitonic_merge(int *, int, int, int) (16384, 1, 1)x(512, 1, 1), Invocations 66
+      Section: Command line profiler metrics
+      ---------------------------------------------------------------- ----------- ------- ------- -------
+      Metric Name                                                      Metric Unit Minimum Maximum Average
+      ---------------------------------------------------------------- ----------- ------- ------- -------
+      gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed           %   56.18   66.77   62.69
+      sm__warps_active.avg.pct_of_peak_sustained_active                          %   74.99   78.49   75.62
+      ---------------------------------------------------------------- ----------- ------- ------- -------
+
+    bitonic_merge_large_k(int *, int) (2048, 1, 1)x(1024, 1, 1), Invocations 11
+      Section: Command line profiler metrics
+      ---------------------------------------------------------------- ----------- ------- ------- -------
+      Metric Name                                                      Metric Unit Minimum Maximum Average
+      ---------------------------------------------------------------- ----------- ------- ------- -------
+      gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed           %   30.94   32.90   31.18
+      sm__warps_active.avg.pct_of_peak_sustained_active                          %   96.29   96.31   96.30
+      ---------------------------------------------------------------- ----------- ------- ------- -------
+
+    bitonic_merge_small_k(int *) (2048, 1, 1)x(1024, 1, 1), Invocations 1
+      Section: Command line profiler metrics
+      ---------------------------------------------------------------- ----------- ------- ------- -------
+      Metric Name                                                      Metric Unit Minimum Maximum Average
+      ---------------------------------------------------------------- ----------- ------- ------- -------
+      gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed           %   32.77   32.77   32.77
+      sm__warps_active.avg.pct_of_peak_sustained_active                          %   49.93   49.93   49.93
+      ---------------------------------------------------------------- ----------- ------- ------- -------
+
+    fill_padding(int *, int, int, int) (52947, 1, 1)x(128, 1, 1), Invocations 1
+      Section: Command line profiler metrics
+      ---------------------------------------------------------------- ----------- ------- ------- -------
+      Metric Name                                                      Metric Unit Minimum Maximum Average
+      ---------------------------------------------------------------- ----------- ------- ------- -------
+      gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed           %   18.63   18.63   18.63
+      sm__warps_active.avg.pct_of_peak_sustained_active                          %    9.59    9.59    9.59
+      ---------------------------------------------------------------- ----------- ------- ------- -------
+
+
+###### grade.py
+Achieved Occupancy: 57.99
+Memory Throughput: 36.27
+Running shared memory OPTIMIZATION approach
 FUNCTIONAL SUCCESS
 Array size         : 100000000
-CPU Sort Time (ms) : 16239.684570
-GPU Sort Time (ms) : 246.409637
-GPU Sort Speed     : 405.828278 million elements per second
+CPU Sort Time (ms) : 15045.066406
+GPU Sort Time (ms) : 244.641190
+GPU Sort Speed     : 408.761902 million elements per second
 PERF PASSING
-GPU Sort is  65x faster than CPU !!!
-H2D Transfer Time (ms): 42.370239
-Kernel Time (ms)      : 73.785217
-D2H Transfer Time (ms): 130.254181
+GPU Sort is  61x faster than CPU !!!
+H2D Transfer Time (ms): 41.458496
+Kernel Time (ms)      : 73.809219
+D2H Transfer Time (ms): 129.373474
 
+Running shared memory OPTIMIZATION approach
 FUNCTIONAL SUCCESS
 Array size         : 100000000
-CPU Sort Time (ms) : 16164.640625
-GPU Sort Time (ms) : 247.105408
-GPU Sort Speed     : 404.685608 million elements per second
+CPU Sort Time (ms) : 15222.079102
+GPU Sort Time (ms) : 248.688278
+GPU Sort Speed     : 402.109833 million elements per second
 PERF PASSING
-GPU Sort is  65x faster than CPU !!!
-H2D Transfer Time (ms): 42.071136
-Kernel Time (ms)      : 73.470818
-D2H Transfer Time (ms): 131.563461
+GPU Sort is  61x faster than CPU !!!
+H2D Transfer Time (ms): 43.206718
+Kernel Time (ms)      : 73.821342
+D2H Transfer Time (ms): 131.660217
 
+Running shared memory OPTIMIZATION approach
 FUNCTIONAL SUCCESS
 Array size         : 100000000
-CPU Sort Time (ms) : 16006.824219
-GPU Sort Time (ms) : 244.991455
-GPU Sort Speed     : 408.177490 million elements per second
+CPU Sort Time (ms) : 14999.749023
+GPU Sort Time (ms) : 244.944412
+GPU Sort Speed     : 408.255890 million elements per second
 PERF PASSING
-GPU Sort is  65x faster than CPU !!!
-H2D Transfer Time (ms): 41.843582
-Kernel Time (ms)      : 73.437027
-D2H Transfer Time (ms): 129.710846
+GPU Sort is  61x faster than CPU !!!
+H2D Transfer Time (ms): 42.174240
+Kernel Time (ms)      : 73.472351
+D2H Transfer Time (ms): 129.297821
 
-Kernel Time: 73.437027ms, Score: 10
-Memory Transfer Time: 171.554428ms, Score: 0.699
-Million elements per second: 408.178
+Kernel Time: 73.472351ms, Score: 10
+Memory Transfer Time: 170.83196999999998ms, Score: 0.702
+Million elements per second: 409.326
 Total Score: 16.7 pts
 
 
-### Major optimization: D2H Transfer time
-
-==change to h100 benchmark!!!!
-FUNCTIONAL SUCCESS
-Array size         : 100000000
-CPU Sort Time (ms) : 16661.224609
-GPU Sort Time (ms) : 548.342651
-GPU Sort Speed     : 182.367722 million elements per second
-PERF PASSING
-GPU Sort is  30x faster than CPU !!!
-H2D Transfer Time (ms): 34.100929
-Kernel Time (ms)      : 376.160919
-D2H Transfer Time (ms): 138.080826
-
 After kernel shared memory optimization, I got a result with H2D, kernel time looking ok, but D2H takes too much time.
 
-The reason is naive malloc host memory allocate virtual memory only, and allocate physical pages lazily on first touch, so for every page size device copy to CPU, there's one OS page fault overhead to allocate physical page. 
+Initially I thought the reason is naive malloc allocating physical pages lazily on every page size device copy to CPU, and there's one OS page fault overhead to allocate physical page. So I tried to replace naive malloc with cudaHostAlloc, using pin memory. The mechanism is it will allocate a locked pin memory on host memory, and device can directly copy to that area which is the time win.
 
-The solution is replacing malloc with cudaHostAlloc, it pins the required physical memory ahead, and also the DMA engine of GPU can directly read and write in this pinned memory.
+However, using cudaHostAlloc barely changes D2H transfer time. So reasoning through, I realize there's no free lunch, cudaHostAlloc takes similar time allocating memory as naive malloc do, the actual mechanism is that cudaHostAlloc takes as long time as malloc to allocate but once done, device can copy faster, while for pageable memory and malloc, each D2H copy takes longer time, since device need to copy data to a small pinned memory buffer on host, and host need extra memcpy to move data to actual allocated array location, which cudaHostAlloc reduces. [2]
+![alt text](image.png)
+
+Furthemore, cudaHostAlloc reduces time by overlapping with kernel running, while CPU is idle. [2] There's syncthreads before and after bitonic_sort() in main.cu, so my allocating with cudaHostAlloc in host_to_dev() makes it unable to simultaneously work with GPU, by moving allocation into bitonic_sort() reduced D2H greatly.
 
 cudaHostAlloc reference documentation:
-https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html#group__CUDART__MEMORY_1gb65da58f444e7230d3322b6126bb4902
+[1] https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html#group__CUDART__MEMORY_1gb65da58f444e7230d3322b6126bb4902
+
+[2] https://developer.nvidia.com/blog/how-optimize-data-transfers-cuda-cc/
 
 
 
 
-### Minor optimizations
-##### 1. Move data on register rather than read from global
+### Other optimizations
+##### 1. Data type optimization
+arrCpu[i] = rand() % 1000; in main.cu indicates that value inside array ranges in [0, 999], so replacing DTYPE int -> uint16_t / int16_t / short which is reducing each data size from 32bit -> 16bit, halving the data transferred.
+
+##### 2. Move data on register rather than read from global
 
 '''
 // before - double load each from global memory

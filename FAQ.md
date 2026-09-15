@@ -107,3 +107,33 @@ Student guessed modules #4–#7.
 
 **Where do we submit the report?** (Qingwen Zhou, 1w)
 Gradescope — upload the report and the zip as multiple files in the same submission. Gradescope submission is now available.
+
+## Peer performance reference (target to work toward)
+
+Best result seen posted by a classmate in the performance thread, H100, `grade.py` output:
+
+| Metric | Peer result | Gate / scoring | Points |
+|---|---|---|---|
+| Achieved Occupancy (10M) | 85.45% | ≥ 65% | 1 / 1 |
+| Memory Throughput (10M) | 48.72% | ≥ 75% | 0 / 1 |
+| Kernel Time (100M) | 15.95 ms | min(80/t × 10, 10) | 10 / 10 |
+| Memory Transfer (H2D+D2H) | 13.07 ms | min(30/t × 4, 4) | 4 / 4 |
+| meps (100M) | 3445 | ≥ 900 eligible, min(meps/1000 × 14, 14) | 14 / 14 |
+| **Total** | | 5 correctness + 1 + 14 + 1 report | **21 pts** |
+
+Per-run breakdown: H2D 13.06–13.56 ms, kernel 15.95–16.33 ms, D2H 0.0068–0.0069 ms, GPU total ~29 ms vs CPU ~18,100 ms (~610×).
+
+### What to actually target from this
+
+- **meps is the winning path, not memory throughput.** Once meps ≥ 900, Option 1 pays the full 14 points and Option 2 is discarded. Memory Throughput ≥ 75% is worth exactly 1 point, and this peer *failed* it (48.72%) while still scoring 21. Chasing throughput % at the cost of meps is a bad trade — the shared-memory kernels legitimately show low DRAM throughput because they are not touching DRAM, which is the whole point.
+- **Kernel 16 ms at 100M is the real goal.** That is ~5× faster than the 73.5 ms shared-memory version. Plausible: pad_size 2^27 = 512 MB, so 16 ms implies roughly 10 effective full-array passes at near peak HBM3 bandwidth (3.35 TB/s) — i.e. nearly all stride levels resolved in shared memory, very few global round-trips.
+- **H2D 13.07 ms is the PCIe ceiling, already reached.** 400 MB / 13.06 ms = 30.6 GB/s, which is PCIe Gen4 x16 with pinned memory. There is nothing left to win on H2D beyond pinning; both `min(30/t × 4, 4)` and the total-time term are already maxed.
+
+### Caveat on the D2H number — do not copy this part
+
+D2H of 0.0069 ms for 400 MB works out to **~58 TB/s**, which is about 1,900× faster than PCIe Gen4 x16 and 17× faster than H100 HBM3 itself. No copy of that size happened inside the timer. The likely mechanism is zero-copy mapped host memory (`cudaHostAlloc` with `cudaHostAllocMapped` + `cudaHostGetDevicePointer`), where `dev_to_host()` returns a mapped pointer and the actual PCIe traffic is deferred until `main.cu`'s verification loop touches the data — which is outside the timed region.
+
+README "Correctness" is explicit that code whose intent is to avoid the timers, or that executes GPU-related work outside the timed sections, is penalized "severely up to and including a zero for the whole project," and the FAQ repeats it. So:
+
+- Treat **kernel ≈ 16 ms and H2D ≈ 13 ms** as the target.
+- Treat **D2H ≈ 0 ms as a red flag, not a goal.** A legitimate pinned D2H of 400 MB cannot go below ~13 ms on PCIe Gen4. A realistic honest total is therefore ~16 + 13 + 13 ≈ 42 ms → ~2,380 meps, which still earns the full 14 performance points.

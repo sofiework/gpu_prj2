@@ -258,26 +258,33 @@ void bitonic_sort()
                 bitonic_merge<<<grid, block>>>(arrD, stride, k, num_pair);
             }
         }
-        return;
     }
 
-    // launch kernel A: all stages k in [2, 8192] in one launch
-    int grid = (pad_size + TILE - 1) / TILE;
-    bitonic_merge_small_k<<<grid, 1024>>>(arrD);
+    else {
+        // launch kernel A: all stages k in [2, 8192] in one launch
+        int grid = (pad_size + TILE - 1) / TILE;
+        bitonic_merge_small_k<<<grid, 1024>>>(arrD);
 
-    // launch kernel B: k in (8192, pad_size]
-    for (int k = TILE * 2; k <= pad_size; k <<= 1) {
-        // large stride [k/2, 8192] that doesn't fit in shared
-        int block = 512;
-        int grid = (pad_size/2 + block - 1) / block;
+        // launch kernel B: k in (8192, pad_size]
+        for (int k = TILE * 2; k <= pad_size; k <<= 1) {
+            // large stride [k/2, 8192] that doesn't fit in shared
+            int block = 512;
+            int grid = (pad_size/2 + block - 1) / block;
 
-        for (int stride = k/2; stride >= 8192; stride >>= 1) {
-            bitonic_merge<<<grid, block>>>(arrD, stride, k, pad_size/2);
+            for (int stride = k/2; stride >= 8192; stride >>= 1) {
+                bitonic_merge<<<grid, block>>>(arrD, stride, k, pad_size/2);
+            }
+
+            // small stride in [4096, 1] that fit in shared
+            bitonic_merge_large_k<<<pad_size / TILE, 1024>>>(arrD, k);
         }
-
-        // small stride in [4096, 1] that fit in shared
-        bitonic_merge_large_k<<<pad_size / TILE, 1024>>>(arrD, k);
+        
     }
+
+    size_t total_size = sizeof(DTYPE) * size; // non-pad size
+    // allocate in CPU memory
+    // arrSortedGpu = (DTYPE *)malloc(total_size);
+    cudaHostAlloc((void **)&arrSortedGpu, total_size, cudaHostAllocDefault);
     
 }
 
@@ -287,11 +294,6 @@ void bitonic_sort()
 DTYPE *dev_to_host() {
 
     size_t total_size = sizeof(DTYPE) * size; // non-pad size
-
-    // allocate in CPU memory
-    // arrSortedGpu = (DTYPE *)malloc(total_size);
-    cudaHostAlloc((void **)&arrSortedGpu, total_size, cudaHostAllocDefault);
-
     // copy host <- device
     cudaMemcpy(arrSortedGpu, arrD, total_size, cudaMemcpyDeviceToHost);
     return arrSortedGpu;
