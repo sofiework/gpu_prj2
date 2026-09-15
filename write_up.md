@@ -14,7 +14,74 @@ so total memory traffic is 512mb * 378 = ~400 GB of total global memory traffic 
 As a result, the dominate optimization is reusing data on shared memory.
 
 
-#### NCU profile of baseline approach
+#### Profile of baseline approach
+###### ncu
+==PROF== Disconnected from process 11139
+[11139] a.out@127.0.0.1
+  Device 0, CC 9.0
+    bitonic_merge(int *, int, int, int) (16384, 1, 1)x(512, 1, 1), Invocations 300
+      Section: Command line profiler metrics
+      ---------------------------------------------------------------- ----------- ------- ------- -------
+      Metric Name                                                      Metric Unit Minimum Maximum Average
+      ---------------------------------------------------------------- ----------- ------- ------- -------
+      gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed           %   56.59   72.29   64.43
+      sm__warps_active.avg.pct_of_peak_sustained_active                          %   70.30   78.18   73.84
+      ---------------------------------------------------------------- ----------- ------- ------- -------
+
+    fill_padding(int *, int, int, int) (52947, 1, 1)x(128, 1, 1), Invocations 1
+      Section: Command line profiler metrics
+      ---------------------------------------------------------------- ----------- ------- ------- -------
+      Metric Name                                                      Metric Unit Minimum Maximum Average
+      ---------------------------------------------------------------- ----------- ------- ------- -------
+      gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed           %   18.62   18.62   18.62
+      sm__warps_active.avg.pct_of_peak_sustained_active                          %    9.65    9.65    9.65
+      ---------------------------------------------------------------- ----------- ------- ------- -------
+
+###### grade.py result
+Achieved Occupancy: 41.83
+Memory Throughput: 41.52
+Running NAIVE approach
+FUNCTIONAL SUCCESS
+Array size         : 100000000
+CPU Sort Time (ms) : 14831.478516
+GPU Sort Time (ms) : 298.024231
+GPU Sort Speed     : 335.543182 million elements per second
+PERF PASSING
+GPU Sort is  49x faster than CPU !!!
+H2D Transfer Time (ms): 42.532639
+Kernel Time (ms)      : 123.787903
+D2H Transfer Time (ms): 131.703674
+
+Running NAIVE approach
+FUNCTIONAL SUCCESS
+Array size         : 100000000
+CPU Sort Time (ms) : 15024.586914
+GPU Sort Time (ms) : 296.452271
+GPU Sort Speed     : 337.322418 million elements per second
+PERF PASSING
+GPU Sort is  50x faster than CPU !!!
+H2D Transfer Time (ms): 41.745281
+Kernel Time (ms)      : 124.017502
+D2H Transfer Time (ms): 130.689468
+
+Running NAIVE approach
+FUNCTIONAL SUCCESS
+Array size         : 100000000
+CPU Sort Time (ms) : 14881.471680
+GPU Sort Time (ms) : 296.540955
+GPU Sort Speed     : 337.221558 million elements per second
+PERF PASSING
+GPU Sort is  50x faster than CPU !!!
+H2D Transfer Time (ms): 42.335297
+Kernel Time (ms)      : 123.914749
+D2H Transfer Time (ms): 130.290909
+
+Kernel Time: 123.787903ms, Score: 6.463
+Memory Transfer Time: 172.434749ms, Score: 0.696
+Million elements per second: 337.584
+Total Score: 13.16 pts
+
+
 
 ### Major optimization: tiling through shared memory
 By tiling, tile size T of threads load data to shared memory once and reuse 

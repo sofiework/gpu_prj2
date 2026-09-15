@@ -220,64 +220,64 @@ void host_to_dev()
  */
 void bitonic_sort()
 {   
-    // NAIVE SOLUTION
-    int num_pair = pad_size / 2;
+    // // NAIVE SOLUTION
+    // int num_pair = pad_size / 2;
 
-    // subarr_len k in [2, 4, 8,... N]
-    for (int k = 2; k <= pad_size; k <<= 1) {
+    // // subarr_len k in [2, 4, 8,... N]
+    // for (int k = 2; k <= pad_size; k <<= 1) {
 
-        // stride in [k/2, k/4 ... 1]
-        for (int stride = k/2; stride >= 1; stride >>= 1) {
+    //     // stride in [k/2, k/4 ... 1]
+    //     for (int stride = k/2; stride >= 1; stride >>= 1) {
 
-            // N/2 threads at each depth
-            // parallel compare arr[i] and arr[i + stride]
-            int block = 512;
-            int grid = (pad_size/2 + block - 1) / block; // each stage does N/k * k/2 compares
-            bitonic_merge<<<grid, block>>>(arrD, stride, k, num_pair);
+    //         // N/2 threads at each depth
+    //         // parallel compare arr[i] and arr[i + stride]
+    //         int block = 512;
+    //         int grid = (pad_size/2 + block - 1) / block; // each stage does N/k * k/2 compares
+    //         bitonic_merge<<<grid, block>>>(arrD, stride, k, num_pair);
+    //     }
+
+    // }
+    // printf("Running NAIVE approach\n");
+
+    // OPTIMIZATION
+    printf("Running shared memory OPTIMIZATION approach\n");
+    // base case - pad_size < TILE
+    if (pad_size < TILE) {
+        int num_pair = pad_size / 2;
+
+        // subarr_len k in [2, 4, 8,... N]
+        for (int k = 2; k <= pad_size; k <<= 1) {
+
+            // stride in [k/2, k/4 ... 1]
+            for (int stride = k/2; stride >= 1; stride >>= 1) {
+
+                // N/2 threads at each depth
+                // parallel compare arr[i] and arr[i + stride]
+                int block = 512;
+                int grid = (pad_size/2 + block - 1) / block; // each stage does N/k * k/2 compares
+                bitonic_merge<<<grid, block>>>(arrD, stride, k, num_pair);
+            }
+        }
+        return;
+    }
+
+    // launch kernel A: all stages k in [2, 8192] in one launch
+    int grid = (pad_size + TILE - 1) / TILE;
+    bitonic_merge_small_k<<<grid, 1024>>>(arrD);
+
+    // launch kernel B: k in (8192, pad_size]
+    for (int k = TILE * 2; k <= pad_size; k <<= 1) {
+        // large stride [k/2, 8192] that doesn't fit in shared
+        int block = 512;
+        int grid = (pad_size/2 + block - 1) / block;
+
+        for (int stride = k/2; stride >= 8192; stride >>= 1) {
+            bitonic_merge<<<grid, block>>>(arrD, stride, k, pad_size/2);
         }
 
+        // small stride in [4096, 1] that fit in shared
+        bitonic_merge_large_k<<<pad_size / TILE, 1024>>>(arrD, k);
     }
-    printf("Running NAIVE approach\n");
-
-    // // OPTIMIZATION
-
-    // // base case - pad_size < TILE
-    // if (pad_size < TILE) {
-    //     int num_pair = pad_size / 2;
-
-    //     // subarr_len k in [2, 4, 8,... N]
-    //     for (int k = 2; k <= pad_size; k <<= 1) {
-
-    //         // stride in [k/2, k/4 ... 1]
-    //         for (int stride = k/2; stride >= 1; stride >>= 1) {
-
-    //             // N/2 threads at each depth
-    //             // parallel compare arr[i] and arr[i + stride]
-    //             int block = 512;
-    //             int grid = (pad_size/2 + block - 1) / block; // each stage does N/k * k/2 compares
-    //             bitonic_merge<<<grid, block>>>(arrD, stride, k, num_pair);
-    //         }
-    //     }
-    //     return;
-    // }
-
-    // // launch kernel A: all stages k in [2, 8192] in one launch
-    // int grid = (pad_size + TILE - 1) / TILE;
-    // bitonic_merge_small_k<<<grid, 1024>>>(arrD);
-
-    // // launch kernel B: k in (8192, pad_size]
-    // for (int k = TILE * 2; k <= pad_size; k <<= 1) {
-    //     // large stride [k/2, 8192] that doesn't fit in shared
-    //     int block = 512;
-    //     int grid = (pad_size/2 + block - 1) / block;
-
-    //     for (int stride = k/2; stride >= 8192; stride >>= 1) {
-    //         bitonic_merge<<<grid, block>>>(arrD, stride, k, pad_size/2);
-    //     }
-
-    //     // small stride in [4096, 1] that fit in shared
-    //     bitonic_merge_large_k<<<pad_size / TILE, 1024>>>(arrD, k);
-    // }
     
 }
 
