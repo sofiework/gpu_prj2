@@ -1,0 +1,2 @@
+Usage: /home/h100/gpu_prj2/./a.out <array_size>
+==ERROR== The application returned an error code (1).
