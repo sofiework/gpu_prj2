@@ -64,6 +64,46 @@ Sync threads after each stride done.
 
 ##### Write back to global memory
 
+#### Profile
+Achieved Occupancy: 57.98
+Memory Throughput: 36.32
+FUNCTIONAL SUCCESS
+Array size         : 100000000
+CPU Sort Time (ms) : 16239.684570
+GPU Sort Time (ms) : 246.409637
+GPU Sort Speed     : 405.828278 million elements per second
+PERF PASSING
+GPU Sort is  65x faster than CPU !!!
+H2D Transfer Time (ms): 42.370239
+Kernel Time (ms)      : 73.785217
+D2H Transfer Time (ms): 130.254181
+
+FUNCTIONAL SUCCESS
+Array size         : 100000000
+CPU Sort Time (ms) : 16164.640625
+GPU Sort Time (ms) : 247.105408
+GPU Sort Speed     : 404.685608 million elements per second
+PERF PASSING
+GPU Sort is  65x faster than CPU !!!
+H2D Transfer Time (ms): 42.071136
+Kernel Time (ms)      : 73.470818
+D2H Transfer Time (ms): 131.563461
+
+FUNCTIONAL SUCCESS
+Array size         : 100000000
+CPU Sort Time (ms) : 16006.824219
+GPU Sort Time (ms) : 244.991455
+GPU Sort Speed     : 408.177490 million elements per second
+PERF PASSING
+GPU Sort is  65x faster than CPU !!!
+H2D Transfer Time (ms): 41.843582
+Kernel Time (ms)      : 73.437027
+D2H Transfer Time (ms): 129.710846
+
+Kernel Time: 73.437027ms, Score: 10
+Memory Transfer Time: 171.554428ms, Score: 0.699
+Million elements per second: 408.178
+Total Score: 16.7 pts
 
 
 ### Major optimization: D2H Transfer time
