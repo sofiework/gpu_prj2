@@ -1,0 +1,93 @@
+==PROF== Connected to process 19260 (/home/h100/gpu_prj2/a.out)
+==PROF== Profiling "fill_padding" - 0: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge_small_k(int *)" - 1: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 2: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge_large_k" - 3: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 4: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 5: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge_large_k" - 6: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 7: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 8: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 9: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge_large_k" - 10: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 11: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 12: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 13: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 14: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge_large_k" - 15: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 16: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 17: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 18: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 19: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 20: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge_large_k" - 21: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 22: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 23: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 24: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 25: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 26: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 27: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge_large_k" - 28: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 29: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 30: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 31: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 32: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 33: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 34: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 35: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge_large_k" - 36: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 37: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 38: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 39: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 40: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 41: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 42: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 43: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 44: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge_large_k" - 45: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 46: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 47: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 48: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 49: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 50: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 51: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 52: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 53: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 54: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge_large_k" - 55: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 56: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 57: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 58: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 59: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 60: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 61: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 62: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 63: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 64: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 65: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge_large_k" - 66: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 67: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 68: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 69: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 70: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 71: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 72: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 73: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 74: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 75: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 76: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge" - 77: 0%....50%....100% - 6 passes
+==PROF== Profiling "bitonic_merge_large_k" - 78: 0%....50%....100% - 6 passes
+Running shared memory OPTIMIZATION approach
+[1;32mFUNCTIONAL SUCCESS
+[0m[1;34mArray size         :[0m 10000000
+[1;34mCPU Sort Time (ms) :[0m 1356.479980
+[1;34mGPU Sort Time (ms) :[0m 19520.457031
+[1;34mGPU Sort Speed     :[0m 0.512283 million elements per second
+[1;31mPERF FAILING
+[0m[1;34mGPU Sort is [1;31m14x [1;34mslower than CPU, optimize further!
+[1;34mH2D Transfer Time (ms):[0m 749.386169
+[1;34mKernel Time (ms)      :[0m 18756.843750
+[1;34mD2H Transfer Time (ms):[0m 14.227008
+==PROF== Disconnected from process 19260
+==PROF== Report: /home/h100/gpu_prj2/results/ncu_opt_10M.ncu-rep
