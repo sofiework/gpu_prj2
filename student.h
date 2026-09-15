@@ -10,7 +10,7 @@
 // Using an invalid data type will results in a 20% gading penalty.
 #define DTYPE int
 extern int pad_size;
-
+#define TILE 8192
 
 // Add any additional #include headers or helper macros needed
 
