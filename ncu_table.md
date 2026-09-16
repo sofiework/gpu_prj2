@@ -1,0 +1,5 @@
+A. Overall kernel cost & bottleneck classification — Kernel Name | Number of Launches | Total Duration (ms) | Percentage of Total Kernel Time | Compute (SM) Throughput (% of SOL) | Memory Throughput (% of SOL) | Achieved Occupancy (%) | Theoretical Occupancy (%)
+
+B. Warp scheduling & stall reasons — Kernel Name | Active Warps per Scheduler | Eligible Warps per Scheduler | No Eligible Cycles (%) = 1-One or More Eligible | Warp Cycles per Issued Instruction | Stall: Barrier (%) | Stall: Short Scoreboard (%) | Stall: Long Scoreboard (%) | Stall: Other (%)
+
+C. Memory access pattern — Kernel Name | Global Load Sectors (M) | Global Store Sectors (M) | Sectors per Request (load) | DRAM Read (GiB) | DRAM Written (GiB) | L1 Hit Rate (%) | L2 Hit Rate (%) | Shared Load Wavefronts (M) | Shared Store Wavefronts (M) | Shared Bank Conflicts (M) | Bank Conflicts per Wavefront

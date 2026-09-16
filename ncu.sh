@@ -1,0 +1,42 @@
+#!/bin/bash
+ncu --set full -f -o opt_shared_pin_short \
+  --metrics \
+gpu__time_duration.sum,\
+sm__throughput.avg.pct_of_peak_sustained_elapsed,\
+gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed,\
+sm__warps_active.avg.pct_of_peak_sustained_active,\
+sm__maximum_warps_per_active_cycle_pct,\
+smsp__warps_active.avg.per_cycle_active,\
+smsp__warps_eligible.avg.per_cycle_active,\
+smsp__issue_active.avg.per_cycle_active,\
+smsp__issue_inst0.avg.pct_of_peak_sustained_active,\
+smsp__average_warps_active_per_issue_active.ratio,\
+smsp__average_warps_issue_stalled_barrier_per_issue_active.ratio,\
+smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio,\
+smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio,\
+smsp__average_warps_issue_stalled_mio_throttle_per_issue_active.ratio,\
+smsp__average_warps_issue_stalled_lg_throttle_per_issue_active.ratio,\
+smsp__average_warps_issue_stalled_math_pipe_throttle_per_issue_active.ratio,\
+smsp__average_warps_issue_stalled_wait_per_issue_active.ratio,\
+smsp__average_warps_issue_stalled_not_selected_per_issue_active.ratio,\
+smsp__average_warps_issue_stalled_no_instruction_per_issue_active.ratio,\
+smsp__average_warps_issue_stalled_membar_per_issue_active.ratio,\
+l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum,\
+l1tex__t_sectors_pipe_lsu_mem_global_op_st.sum,\
+l1tex__average_t_sectors_per_request_pipe_lsu_mem_global_op_ld.ratio,\
+l1tex__average_t_sectors_per_request_pipe_lsu_mem_global_op_st.ratio,\
+l1tex__t_sectors_pipe_lsu_mem_local_op_ld.sum,\
+l1tex__t_sectors_pipe_lsu_mem_local_op_st.sum,\
+dram__bytes_read.sum,\
+dram__bytes_write.sum,\
+l1tex__t_sector_hit_rate.pct,\
+lts__t_sector_hit_rate.pct,\
+l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum,\
+l1tex__data_pipe_lsu_wavefronts_mem_shared_op_st.sum,\
+l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum,\
+l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_st.sum,\
+smsp__sass_branch_targets.sum,\
+smsp__sass_branch_targets_threads_divergent.sum,\
+smsp__sass_average_branch_targets_threads_uniform.pct \
+  ./a.out 10000000
+ncu --import opt_shared_pin_short.ncu-rep --csv --page raw > abc_raw.csv

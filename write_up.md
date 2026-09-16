@@ -186,18 +186,25 @@ Also, with 2Byte per element, 48KB shared memory can also allow larger tile size
 
 
 ###### grade.py profile
+Achieved Occupancy: 69.44
+Memory Throughput: 22.88
+
 FUNCTIONAL SUCCESS
 Array size         : 100000000
-CPU Sort Time (ms) : 14768.228516
-GPU Sort Time (ms) : 91.227425
-GPU Sort Speed     : 1096.161621 million elements per second
+CPU Sort Time (ms) : 15084.942383
+GPU Sort Time (ms) : 86.006721
+GPU Sort Speed     : 1162.699829 million elements per second
 PERF PASSING
-GPU Sort is  161x faster than CPU !!!
-H2D Transfer Time (ms): 21.081057
-Kernel Time (ms)      : 66.506210
-D2H Transfer Time (ms): 3.640160
+GPU Sort is  175x faster than CPU !!!
+H2D Transfer Time (ms): 21.131489
+Kernel Time (ms)      : 61.237247
+D2H Transfer Time (ms): 3.637984
 
-This also changes
+Kernel Time: 61.164257ms, Score: 10
+Memory Transfer Time: 24.769472999999998ms, Score: 4
+Million elements per second: 1163.687
+Total Score: 21 pts
+
 
 ##### 2. Move data on register rather than read from global
 
@@ -241,6 +248,76 @@ if ((a < b) != dir) {
 | bitonic_merge_large_k | 23.1 | 23.1 | 0.72 | 0.48 | 18.7% | 110.2 | 66.1 | 45.9 | 0.26 |
 | fill_padding | 0.0 | 0.8 | ~0 | ~0 | — | 0.0 | 0.0 | 0.0 | — |
 | **Total** | **163.6** | **92.9** | **5.11** | **1.75** | **16.4%** | **187.3** | **124.1** | **96.0** | — |
+
+##### A. Overall kernel cost (after data type and tile size optimization: DTYPE = short, TILE = 16384, 10M elements)
+| Kernel Name | Number of Launches | Total Duration (milliseconds) | Percentage of Total Kernel Time | Achieved Occupancy (percent) | Theoretical Occupancy (percent) | Memory Throughput (percent of Speed of Light) | Divergent Branches |
+|---|---|---|---|---|---|---|---|
+| bitonic_merge_small_k | 1 | 2.137 | 29.9% | 93.95% | 100.0% | 25.08% | 0 |
+| bitonic_merge | 55 | 2.004 | 28.0% | 80.16% | 100.0% | 30.14% | 0 |
+| bitonic_merge_large_k | 10 | 2.981 | 41.7% | 93.79% | 100.0% | 26.96% | 0 |
+| fill_padding | 1 | 0.034 | 0.5% | 9.65% | 100.0% | 9.58% | 0 |
+| **Total** | **67** | **7.156** | **100.0%** | — | — | — | **0** |
+
+##### B. Memory (after data type and tile size optimization: DTYPE = short, TILE = 16384, 10M elements)
+| Kernel Name | Global Memory Load Sectors (M) | Global Memory Store Sectors (M) | Global Memory Read (GiB) | Global Memory Written (GiB) | L1 Hit Rate | L2 Hit Rate | Shared Memory Load Wavefronts (M) | Shared Memory Store Wavefronts (M) | Shared Memory Bank Conflicts (M) | Bank Conflicts per Wavefront |
+|---|---|---|---|---|---|---|---|---|---|---|
+| bitonic_merge_small_k | 1.0 | 1.1 | 0.03 | 0.01 | 46.8% | 51.2% | 55.6 | 41.3 | 0.034 | 0.0003 |
+| bitonic_merge | 57.7 | 27.7 | 1.80 | 0.17 | 27.1% | 33.9% | 0.0 | 0.0 | 0.000 | — |
+| bitonic_merge_large_k | 10.5 | 10.5 | 0.33 | 0.13 | 46.6% | 51.2% | 78.8 | 47.5 | 0.297 | 0.0024 |
+| fill_padding | 0.0 | 0.4 | 0.00 | 0.00 | 48.3% | 99.8% | 0.0 | 0.0 | 0.000 | — |
+| **Total** | **69.2** | **39.7** | **2.16** | **0.31** | **30.3%** | **36.8%** | **134.4** | **88.8** | **0.331** | **0.0015** |
+
+##### Profiling command and metric mapping
+
+Both tables above were collected with a single Nsight Compute run at 10M elements:
+
+```
+ncu --set full \
+  --metrics l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum,l1tex__t_sectors_pipe_lsu_mem_global_op_st.sum,\
+l1tex__t_sectors_pipe_lsu_mem_local_op_ld.sum,l1tex__t_sectors_pipe_lsu_mem_local_op_st.sum,\
+smsp__sass_branch_targets.sum,smsp__sass_branch_targets_threads_divergent.sum,\
+smsp__sass_average_branch_targets_threads_uniform.pct,\
+sm__warps_active.avg.pct_of_peak_sustained_active,sm__maximum_warps_per_active_cycle_pct,\
+lts__t_sector_hit_rate.pct,l1tex__t_sector_hit_rate.pct,\
+l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum,l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_st.sum \
+  -o opt_shared_pin_short ./a.out 10000000
+
+ncu --import opt_shared_pin_short.ncu-rep --csv --page raw > metrics_shared_pin_short.csv
+```
+
+Each reported quantity maps to the following metric:
+
+Table A
+
+- Number of Launches - row count per kernel in the export (reported by ncu as `Invocations`)
+- Total Duration - `gpu__time_duration.sum`, summed over all launches of the kernel
+- Percentage of Total Kernel Time - derived from `gpu__time_duration.sum`
+- Achieved Occupancy - `sm__warps_active.avg.pct_of_peak_sustained_active`
+- Theoretical Occupancy - `sm__maximum_warps_per_active_cycle_pct`
+- Memory Throughput - `gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed`
+- Divergent Branches - `smsp__sass_branch_targets_threads_divergent.sum`
+
+Table B
+
+- Global Memory Load Sectors - `l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum`
+- Global Memory Store Sectors - `l1tex__t_sectors_pipe_lsu_mem_global_op_st.sum`
+- Global Memory Read - `dram__bytes_read.sum` (traffic that reached DRAM, i.e. after L1 and L2 absorb hits, so it is lower than the load sector count)
+- Global Memory Written - `dram__bytes_write.sum`
+- L1 Hit Rate - `l1tex__t_sector_hit_rate.pct`
+- L2 Hit Rate - `lts__t_sector_hit_rate.pct`
+- Shared Memory Load Wavefronts - `l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum`
+- Shared Memory Store Wavefronts - `l1tex__data_pipe_lsu_wavefronts_mem_shared_op_st.sum`
+- Shared Memory Bank Conflicts - `l1tex__data_bank_conflicts_pipe_lsu_mem_shared.sum`, which the export confirms equals `l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum` plus `l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_st.sum`
+- Bank Conflicts per Wavefront - derived as bank conflicts divided by the sum of shared load and store wavefronts
+
+Local memory accesses are not given a column because `l1tex__t_sectors_pipe_lsu_mem_local_op_ld.sum` and
+`l1tex__t_sectors_pipe_lsu_mem_local_op_st.sum` are both 0 for every kernel, confirming no register spilling.
+
+Hit rates are per-launch averages within each kernel; the Total row weights them by global load sectors, since
+percentages cannot be summed. Metrics named above that are not in the explicit `--metrics` list
+(`gpu__time_duration.sum`, `gpu__compute_memory_throughput...`, `dram__bytes_*`, the shared wavefront counters)
+come from `--set full`.
+
 
 
 ### Bugs
