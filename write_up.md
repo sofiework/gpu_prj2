@@ -40,31 +40,7 @@ As a result, the dominate optimization is reusing data on shared memory.
 ###### grade.py result
 Achieved Occupancy: 41.83
 Memory Throughput: 41.52
-Running NAIVE approach
-FUNCTIONAL SUCCESS
-Array size         : 100000000
-CPU Sort Time (ms) : 14831.478516
-GPU Sort Time (ms) : 298.024231
-GPU Sort Speed     : 335.543182 million elements per second
-PERF PASSING
-GPU Sort is  49x faster than CPU !!!
-H2D Transfer Time (ms): 42.532639
-Kernel Time (ms)      : 123.787903
-D2H Transfer Time (ms): 131.703674
 
-Running NAIVE approach
-FUNCTIONAL SUCCESS
-Array size         : 100000000
-CPU Sort Time (ms) : 15024.586914
-GPU Sort Time (ms) : 296.452271
-GPU Sort Speed     : 337.322418 million elements per second
-PERF PASSING
-GPU Sort is  50x faster than CPU !!!
-H2D Transfer Time (ms): 41.745281
-Kernel Time (ms)      : 124.017502
-D2H Transfer Time (ms): 130.689468
-
-Running NAIVE approach
 FUNCTIONAL SUCCESS
 Array size         : 100000000
 CPU Sort Time (ms) : 14881.471680
@@ -177,41 +153,6 @@ Sync threads after each stride done.
 ###### grade.py
 Achieved Occupancy: 57.99
 Memory Throughput: 36.27
-Running shared memory OPTIMIZATION approach
-FUNCTIONAL SUCCESS
-Array size         : 100000000
-CPU Sort Time (ms) : 15045.066406
-GPU Sort Time (ms) : 244.641190
-GPU Sort Speed     : 408.761902 million elements per second
-PERF PASSING
-GPU Sort is  61x faster than CPU !!!
-H2D Transfer Time (ms): 41.458496
-Kernel Time (ms)      : 73.809219
-D2H Transfer Time (ms): 129.373474
-
-Running shared memory OPTIMIZATION approach
-FUNCTIONAL SUCCESS
-Array size         : 100000000
-CPU Sort Time (ms) : 15222.079102
-GPU Sort Time (ms) : 248.688278
-GPU Sort Speed     : 402.109833 million elements per second
-PERF PASSING
-GPU Sort is  61x faster than CPU !!!
-H2D Transfer Time (ms): 43.206718
-Kernel Time (ms)      : 73.821342
-D2H Transfer Time (ms): 131.660217
-
-Running shared memory OPTIMIZATION approach
-FUNCTIONAL SUCCESS
-Array size         : 100000000
-CPU Sort Time (ms) : 14999.749023
-GPU Sort Time (ms) : 244.944412
-GPU Sort Speed     : 408.255890 million elements per second
-PERF PASSING
-GPU Sort is  61x faster than CPU !!!
-H2D Transfer Time (ms): 42.174240
-Kernel Time (ms)      : 73.472351
-D2H Transfer Time (ms): 129.297821
 
 Kernel Time: 73.472351ms, Score: 10
 Memory Transfer Time: 170.83196999999998ms, Score: 0.702
@@ -240,6 +181,24 @@ cudaHostAlloc reference documentation:
 ##### 1. Data type optimization
 arrCpu[i] = rand() % 1000; in main.cu indicates that value inside array ranges in [0, 999], so replacing DTYPE int -> uint16_t / int16_t / short which is reducing each data size from 32bit -> 16bit, halving the data transferred.
 
+Also, with 2Byte per element, 48KB shared memory can also allow larger tile size, 48KB / 2Byte = 24K, tile size is the nearest power of two <= 24K is 16384. threads_per_block is still 1024 threads, and blocks_per_grid = pad_size 2^27 / 1024.
+
+
+
+###### grade.py profile
+FUNCTIONAL SUCCESS
+Array size         : 100000000
+CPU Sort Time (ms) : 14768.228516
+GPU Sort Time (ms) : 91.227425
+GPU Sort Speed     : 1096.161621 million elements per second
+PERF PASSING
+GPU Sort is  161x faster than CPU !!!
+H2D Transfer Time (ms): 21.081057
+Kernel Time (ms)      : 66.506210
+D2H Transfer Time (ms): 3.640160
+
+This also changes
+
 ##### 2. Move data on register rather than read from global
 
 '''
@@ -261,6 +220,27 @@ if ((a < b) != dir) {
 } 
 
 '''
+
+### ncu profile
+##### A. Overall kernel cost
+| Kernel Name | Number of Launches | Total Duration (milliseconds) | Percentage of Total Kernel Time | Achieved Occupancy (percent) | Theoretical Occupancy (percent) | Memory Throughput (percent of Speed of Light) | Divergent Branches |
+|---|---|---|---|---|---|---|---|
+| bitonic_merge_small_k | 1 | 2.155 | 26.1% | 49.93% | 50.0% | 32.77% | 0 |
+| bitonic_merge | 66 | 2.709 | 32.8% | 75.57% | 100.0% | 62.64% | 0 |
+| bitonic_merge_large_k | 11 | 3.367 | 40.7% | 96.30% | 100.0% | 31.17% | 0 |
+| fill_padding | 1 | 0.034 | 0.4% | 9.58% | 100.0% | 18.61% | 0 |
+| **Total** | **79** | **8.266** | **100.0%** | — | — | — | **0** |
+
+(The max occupancy of bitonic_merge_small_k caps at 50% because with 33.8 KB of shared memory per block, only one block fits per SM, its thread_per_block = 1024 = 32 warps, out of the H100's 64-warp capacity is 50%.)
+
+##### B. Memory
+| Kernel Name | Global Memory Load Sectors (M) | Global Memory Store Sectors (M) | Global Memory Read (GiB) | Global Memory Written (GiB) | L2 Hit Rate | Shared Memory Load Wavefronts (M) | Shared Memory Store Wavefronts (M) | Shared Memory Bank Conflicts (M) | Bank Conflicts per Wavefront |
+|---|---|---|---|---|---|---|---|---|---|
+| bitonic_merge_small_k | 2.1 | 2.1 | 0.07 | 0.04 | 18.0% | 77.1 | 57.9 | 50.2 | 0.37 |
+| bitonic_merge | 138.4 | 66.9 | 4.33 | 1.23 | 15.4% | 0.0 | 0.0 | 0.0 | — |
+| bitonic_merge_large_k | 23.1 | 23.1 | 0.72 | 0.48 | 18.7% | 110.2 | 66.1 | 45.9 | 0.26 |
+| fill_padding | 0.0 | 0.8 | ~0 | ~0 | — | 0.0 | 0.0 | 0.0 | — |
+| **Total** | **163.6** | **92.9** | **5.11** | **1.75** | **16.4%** | **187.3** | **124.1** | **96.0** | — |
 
 
 ### Bugs

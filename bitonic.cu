@@ -240,7 +240,7 @@ void bitonic_sort()
     // printf("Running NAIVE approach\n");
 
     // OPTIMIZATION
-    printf("Running shared memory OPTIMIZATION approach\n");
+    // printf("Running shared memory OPTIMIZATION approach\n");
     // base case - pad_size < TILE
     if (pad_size < TILE) {
         int num_pair = pad_size / 2;
@@ -271,7 +271,7 @@ void bitonic_sort()
             int block = 512;
             int grid = (pad_size/2 + block - 1) / block;
 
-            for (int stride = k/2; stride >= 8192; stride >>= 1) {
+            for (int stride = k/2; stride >= TILE; stride >>= 1) {
                 bitonic_merge<<<grid, block>>>(arrD, stride, k, pad_size/2);
             }
 
