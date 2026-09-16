@@ -39,4 +39,4 @@ smsp__sass_branch_targets.sum,\
 smsp__sass_branch_targets_threads_divergent.sum,\
 smsp__sass_average_branch_targets_threads_uniform.pct \
   ./a.out 10000000
-ncu --import opt_shared_pin_short.ncu-rep --csv --page raw > abc_raw.csv
+ncu --import opt_shared_pin_short.ncu-rep --csv --page raw > metrics_latest.csv
