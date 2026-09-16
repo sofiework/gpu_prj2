@@ -1,6 +1,6 @@
 # gpu_prj2 — run: `n`
 
-Published 2026-09-15T20:56:25-04:00 from PACE-ICE. `grade.py --perf-only` (no ncu).
+Published 2026-09-15T20:57:03-04:00 from PACE-ICE. `grade.py --perf-only` (no ncu).
 Ran `grade.py --perf-only` plus explicit correctness checks at every graded size.
 
 > **Check the GPU model in the Environment section below.** Only H100 numbers are
