@@ -1,5 +1,5 @@
 #!/bin/bash
-ncu --set full -f -o opt_shared_pin_short \
+ncu --set full -f -o opt_shared_pin_short2 \
   --metrics \
 gpu__time_duration.sum,\
 sm__throughput.avg.pct_of_peak_sustained_elapsed,\
@@ -39,4 +39,4 @@ smsp__sass_branch_targets.sum,\
 smsp__sass_branch_targets_threads_divergent.sum,\
 smsp__sass_average_branch_targets_threads_uniform.pct \
   ./a.out 10000000
-ncu --import opt_shared_pin_short.ncu-rep --csv --page raw > metrics_latest.csv
+ncu --import opt_shared_pin_short.ncu-rep --csv --page raw > metrics_latest2.csv

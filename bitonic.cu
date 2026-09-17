@@ -185,8 +185,8 @@ __global__ void bitonic_merge_large_k(DTYPE *arr, int k) {
             DTYPE b = tile[i_stride];
 
             if ((a < b) != dir) {
-            tile[i] = b;
-            tile[i_stride] = a;
+                tile[i] = b;
+                tile[i_stride] = a;
             }
         }
 
