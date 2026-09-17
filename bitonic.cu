@@ -323,7 +323,6 @@ void bitonic_sort()
             int grid = (pad_size/2 + block - 1) / block;
 
             for (int stride = k/2; stride >= TILE; stride >>= 1) {
-                // vectorized
                 bitonic_merge<<<grid, block>>>(arrD, stride, k, pad_size/2);
             }
             // NAIVE
