@@ -323,7 +323,7 @@ void bitonic_sort()
 
             for (int stride = k/2; stride >= TILE; stride >>= 1) {
                 // vectorized
-                bitonic_merge_vec_int4<<<grid, block>>>(arrD, stride, k, (pad_size/2) / 8);
+                bitonic_merge<<<grid, block>>>(arrD, stride, k, (pad_size/2) / 8);
             }
 
             // small stride in [4096, 1] that fit in shared
