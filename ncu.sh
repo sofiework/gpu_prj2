@@ -1,5 +1,5 @@
 #!/bin/bash
-ncu --set full -f -o opt_shared_pin_short2 \
+ncu --set full -f -o opt_latest \
   --metrics \
 gpu__time_duration.sum,\
 sm__throughput.avg.pct_of_peak_sustained_elapsed,\
