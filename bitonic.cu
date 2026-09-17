@@ -80,7 +80,7 @@ __global__ void bitonic_merge_vec_int4(DTYPE *arr, int stride, int subarr_len, i
 // shared memory optimization
 
 // load fix tile size on shared memory, and loop k, stride
-__global__ void bitonic_merge_small_k(DTYPE *arr) {
+__global__ void __launch_bounds__(1024, 2) bitonic_merge_small_k(DTYPE *arr) {
     // tid
     int tid = threadIdx.x;
 
@@ -144,7 +144,7 @@ __global__ void bitonic_merge_small_k(DTYPE *arr) {
 
 
 // loop all small strides once for large k
-__global__ void bitonic_merge_large_k(DTYPE *arr, int k) {
+__global__ void __launch_bounds__(1024, 2) bitonic_merge_large_k(DTYPE *arr, int k) {
     // tid
     int tid = threadIdx.x;
 

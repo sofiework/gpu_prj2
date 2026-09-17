@@ -56,3 +56,22 @@ with 16B/thread max, 512B/warp, 16 sectors/4 cache line
 
 [3] vectorized memory access https://developer.nvidia.com/blog/cuda-pro-tip-increase-performance-with-vectorized-memory-access/
 [4] static indexing small array on register https://developer.nvidia.com/blog/fast-dynamic-indexing-private-arrays-cuda/
+
+
+However vectorized 
+
+┌────────────────────────┬──────────┬─────────┐
+│                        │  non-vectorzied  │ vectorized │
+├────────────────────────┼──────────┼─────────┤
+│ regs/thread            │ 32       │ 40      │ 
+├────────────────────────┼──────────┼─────────┤
+│ blocks/SM by registers │ 2        │ 1       │
+├────────────────────────┼──────────┼─────────┤
+│ shared carveout        │ 102.4 KB │ 65.5 KB │
+├────────────────────────┼──────────┼─────────┤
+│ blocks/SM by shared    │ 3        │ 1       │
+├────────────────────────┼──────────┼─────────┤
+│ theoretical occupancy  │ 100%     │ 50%     │
+└────────────────────────┴──────────┴─────────┘
+
+At 1024 threads/block, 32 regs × 1024 = 32,768, so two blocks exactly fill the 65,536-register file; 40 regs needs 40,960, and two blocks would want 81,920, so only one fits.
