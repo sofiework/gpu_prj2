@@ -24,7 +24,6 @@ __global__ void bitonic_merge(DTYPE *arr, int stride, int subarr_len, int num_pa
     if (tid >= num_pairs) {
         return;
     }
-
     // which stride group * stride * 2 + offset
     int i = (tid / stride) * stride * 2 + (tid % stride);
 
@@ -36,6 +35,45 @@ __global__ void bitonic_merge(DTYPE *arr, int stride, int subarr_len, int num_pa
         arr[i] = b;
         arr[i + stride] = a;
     } 
+}
+
+__global__ void bitonic_merge_vec_int4(DTYPE *arr, int stride, int subarr_len, int num_pairs) {
+    // at subarr_len, stride
+    int tid = blockDim.x * blockIdx.x + threadIdx.x;
+
+    // boundary check
+    if (tid >= num_pairs) {
+        return;
+    }
+
+    int start = tid * 8; // per 8 element group
+    // which stride group * stride * 2 + offset
+    int i = (start / stride) * stride * 2 + (start % stride);
+
+    // dir = even subarr -> ascending
+    bool dir = ((i / subarr_len) % 2) == 0;
+
+    // vectorized load - 16Byte
+    int4 a_vec = *reinterpret_cast<int4*>(arr + i); // 8 elements * 2B = 16B
+    int4 b_vec = *reinterpret_cast<int4*>(arr + i + stride);
+
+    DTYPE* a_arr = reinterpret_cast<DTYPE*>(&a_vec);
+    DTYPE* b_arr = reinterpret_cast<DTYPE*>(&b_vec);
+
+    #pragma unroll
+    for (int j = 0; j < 8; j++) {
+        DTYPE a = a_arr[j];
+        DTYPE b = b_arr[j];
+
+        if ((a < b) != dir) {
+            a_arr[j] = b; 
+            b_arr[j] = a;
+        } 
+    }
+
+    // vectorized write back
+    *reinterpret_cast<int4*>(arr + i) = a_vec;
+    *reinterpret_cast<int4*>(arr + i + stride) = b_vec;
 }
 
 
@@ -66,9 +104,14 @@ __global__ void bitonic_merge_small_k(DTYPE *arr) {
 
             // phase compare arr[i], arr[i + stride]
             int num_pairs = TILE / 2 / blockDim.x; // 4096 / 1024
+            // math pipe congestion optimization !!! k and stride are power of 2
+            const int mask = stride - 1;
+
             for (int ph = 0; ph < num_pairs; ph++) {
+                
                 int t = ph * blockDim.x + tid; // [0..4096]
-                int i = (t / stride) * 2 * stride + (t % stride); // group * 2 * stride + offset
+                // int i = (t / stride) * 2 * stride + (t % stride); // group * 2 * stride + offset
+                int i = (t << 1) - (t & mask);
                 int i_stride = i + stride;
 
                 // swap
@@ -105,6 +148,9 @@ __global__ void bitonic_merge_large_k(DTYPE *arr, int k) {
     // tid
     int tid = threadIdx.x;
 
+    // dir = (global_idx / k) % 2 == 0, uniform at same k
+    bool dir = ((TILE * blockIdx.x) / k) % 2 == 0;
+
     // allocate on shared mem
     __shared__ DTYPE tile[TILE];
 
@@ -123,17 +169,21 @@ __global__ void bitonic_merge_large_k(DTYPE *arr, int k) {
 
         // phase compare arr[i], arr[i + stride]
         int num_pairs = TILE / 2 / blockDim.x; // 4096 / 1024
+        // math pipe congestion optimization !!! k and stride are power of 2
+        const int mask = stride - 1; // keep low bits
+
         for (int ph = 0; ph < num_pairs; ph++) {
+
             int t = ph * blockDim.x + tid; // [0..4096]
-            int i = (t / stride) * 2 * stride + (t % stride); // group * 2 * stride + offset
+            // int i = (t / stride) * 2 * stride + (t % stride); // group * 2 * stride + offset
+            // bit operation optimization
+            int i = (t << 1) - (t & mask);
             int i_stride = i + stride;
 
             // swap
             DTYPE a = tile[i]; 
             DTYPE b = tile[i_stride];
 
-            // dir = (global_idx / k) % 2 == 0
-            bool dir = ((TILE * blockIdx.x + i) / k) % 2 == 0;
             if ((a < b) != dir) {
             tile[i] = b;
             tile[i_stride] = a;
@@ -269,10 +319,11 @@ void bitonic_sort()
         for (int k = TILE * 2; k <= pad_size; k <<= 1) {
             // large stride [k/2, 8192] that doesn't fit in shared
             int block = 512;
-            int grid = (pad_size/2 + block - 1) / block;
+            int grid = ((pad_size/2) / 8 + block - 1) / block;
 
             for (int stride = k/2; stride >= TILE; stride >>= 1) {
-                bitonic_merge<<<grid, block>>>(arrD, stride, k, pad_size/2);
+                // vectorized
+                bitonic_merge_vec_int4<<<grid, block>>>(arrD, stride, k, (pad_size/2) / 8);
             }
 
             // small stride in [4096, 1] that fit in shared
