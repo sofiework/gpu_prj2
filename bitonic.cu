@@ -317,14 +317,28 @@ void bitonic_sort()
 
         // launch kernel B: k in (8192, pad_size]
         for (int k = TILE * 2; k <= pad_size; k <<= 1) {
+            // NAIVE
             // large stride [k/2, 8192] that doesn't fit in shared
             int block = 512;
-            int grid = ((pad_size/2) / 8 + block - 1) / block;
+            int grid = (pad_size/2 + block - 1) / block;
 
             for (int stride = k/2; stride >= TILE; stride >>= 1) {
                 // vectorized
-                bitonic_merge<<<grid, block>>>(arrD, stride, k, (pad_size/2) / 8);
+                bitonic_merge<<<grid, block>>>(arrD, stride, k, pad_size/2);
             }
+            // NAIVE
+
+
+            // // VECTORIZED
+            // // large stride [k/2, 8192] that doesn't fit in shared
+            // int block = 512;
+            // int grid = ((pad_size/2) / 8 + block - 1) / block;
+
+            // for (int stride = k/2; stride >= TILE; stride >>= 1) {
+            //     // vectorized
+            //     bitonic_merge_vec_int4<<<grid, block>>>(arrD, stride, k, (pad_size/2) / 8);
+            // }
+            // // VECTORIZED
 
             // small stride in [4096, 1] that fit in shared
             bitonic_merge_large_k<<<pad_size / TILE, 1024>>>(arrD, k);
