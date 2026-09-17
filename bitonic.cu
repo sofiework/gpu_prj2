@@ -384,7 +384,9 @@ void cleanup(){
     // cudaFree(arrD);
 
     // OPTIMIZATION
+    cudaHostUnregister(arrCpu);
     free(arrCpu);
+
     cudaFreeHost(arrSortedGpu);
     cudaFree(arrD);
     

@@ -116,3 +116,41 @@ B2. Full stall breakdown (percentage of warp cycles per issued instruction)
 | bitonic_merge_vec_int4 | 5.1% | 4.5% | 67.0% | 6.1% | 4.4% | 0.7% | 0.0% | 2.5% |
 | bitonic_merge_large_k | 36.5% | 20.2% | 1.4% | 10.3% | 8.7% | 2.7% | 8.0% | 5.4% |
 | fill_padding | 1.1% | 0.2% | 0.0% | 24.4% | 31.8% | 0.3% | 0.0% | 4.1% |
+
+## Final profile — `cudaMemset` padding, no fill_padding kernel (`metrics_opt_latest.csv` from `opt_latest.ncu-rep`, 10M elements, 66 launches)
+
+---
+
+A. Overall kernel cost & bottleneck classification
+
+| Kernel Name | Number of Launches | Total Duration (ms) | Percentage of Total Kernel Time | Compute (SM) Throughput (% of SOL) | Memory Throughput (% of SOL) | Achieved Occupancy (%) | Theoretical Occupancy (%) |
+|---|---|---|---|---|---|---|---|
+| bitonic_merge_small_k | 1 | 1.621 | 41.0% | 78.19% | 33.06% | 93.78% | 100.0% |
+| bitonic_merge_vec_int4 | 55 | 1.125 | 28.5% | 31.88% | 66.16% | 73.22% | 100.0% |
+| bitonic_merge_large_k | 10 | 1.205 | 30.5% | 78.89% | 68.80% | 93.64% | 100.0% |
+| **Total** | **66** | **3.952** | **100.0%** | — | — | — | — |
+
+B. Warp scheduling & stall reasons
+
+| Kernel Name | Active Warps per Scheduler | Eligible Warps per Scheduler | No Eligible Cycles (%) | Warp Cycles per Issued Instruction | Stall: Barrier (%) | Stall: Short Scoreboard (%) | Stall: Long Scoreboard (%) | Stall: Other (%) |
+|---|---|---|---|---|---|---|---|---|
+| bitonic_merge_small_k | 15.00 | 6.91 | 19.2% | 18.6 | 5.6% | 0.9% | 0.1% | 93.5% |
+| bitonic_merge_vec_int4 | 11.95 | 0.94 | 66.9% | 36.1 | 0.0% | 4.3% | 67.4% | 28.3% |
+| bitonic_merge_large_k | 14.98 | 6.30 | 16.9% | 18.0 | 8.0% | 8.7% | 1.4% | 81.9% |
+
+C. Memory access pattern
+
+| Kernel Name | Global Load Sectors (M) | Global Store Sectors (M) | Sectors per Request (load) | DRAM Read (GiB) | DRAM Written (GiB) | L1 Hit Rate (%) | L2 Hit Rate (%) | Shared Load Wavefronts (M) | Shared Store Wavefronts (M) | Shared Bank Conflicts (M) | Bank Conflicts per Wavefront |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| bitonic_merge_small_k | 1.0 | 1.0 | 2.00 | 0.03 | 0.01 | 47.2% | 51.2% | 55.6 | 41.3 | 0.037 | 0.0004 |
+| bitonic_merge_vec_int4 | 57.7 | 57.5 | 16.00 | 1.80 | 0.63 | 44.1% | 51.2% | 0.0 | 0.0 | 0.000 | — |
+| bitonic_merge_large_k | 10.5 | 10.5 | 2.00 | 0.33 | 0.13 | 46.7% | 51.2% | 79.1 | 47.5 | 0.559 | 0.0044 |
+| **Total** | **69.2** | **69.1** | **7.38** | **2.16** | **0.77** | **44.5%** | **51.2%** | **134.7** | **88.8** | **0.596** | **0.0027** |
+
+B2. Full stall breakdown (percentage of warp cycles per issued instruction)
+
+| Kernel Name | not selected | math pipe throttle | long scoreboard | wait | short scoreboard | dispatch stall | barrier | mio throttle |
+|---|---|---|---|---|---|---|---|---|
+| bitonic_merge_small_k | 40.7% | 28.4% | 0.1% | 11.1% | 0.9% | 6.7% | 5.6% | 0.8% |
+| bitonic_merge_vec_int4 | 5.1% | 4.5% | 67.4% | 6.1% | 4.3% | 0.7% | 0.0% | 2.5% |
+| bitonic_merge_large_k | 36.5% | 20.1% | 1.4% | 10.3% | 8.7% | 2.7% | 8.0% | 5.4% |
