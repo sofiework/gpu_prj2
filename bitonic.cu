@@ -243,6 +243,8 @@ int padding_size(int size) {
 
 void host_to_dev()
 {   
+    cudaHostRegister(arrCpu, sizeof(DTYPE) * size, cudaHostRegisterDefault);
+
     // calculate padded size
     pad_size = padding_size(size);
     
