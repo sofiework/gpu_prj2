@@ -253,10 +253,12 @@ void host_to_dev()
 
     // fill padding if padded
     if (pad_size > size) {
-        int block = 128;
-        int grid = (pad_size - size + block - 1) / block;
-        DTYPE sentinel = std::numeric_limits<DTYPE>::max();
-        fill_padding<<<grid, block>>>(arrD, size, pad_size, sentinel);
+        // DTYPE sentinel = std::numeric_limits<DTYPE>::max();
+        // int block = 128;
+        // int grid = (pad_size - size + block - 1) / block;
+        // fill_padding<<<grid, block>>>(arrD, size, pad_size, sentinel);
+
+        cudaMemset(arrD + size, 0x7F, (pad_size - size) * sizeof(DTYPE)); // int value use lower 8 bit
     }
     
     // copy device <- host
