@@ -210,12 +210,12 @@ __global__ void __launch_bounds__(1024, 2) bitonic_merge_large_k(DTYPE *arr, int
  * 
  **********************************************************************************/
 
-__global__ void fill_padding(DTYPE *arrD, int size, int pad_size, DTYPE sentinel) {
-    int tid = blockDim.x * blockIdx.x + threadIdx.x;
-    if (tid + size < pad_size) {
-        arrD[tid + size] = sentinel;
-    }
-}
+// __global__ void fill_padding(DTYPE *arrD, int size, int pad_size, DTYPE sentinel) {
+//     int tid = blockDim.x * blockIdx.x + threadIdx.x;
+//     if (tid + size < pad_size) {
+//         arrD[tid + size] = sentinel;
+//     }
+// }
 
 int padding_size(int size) {
     // pad size to power of 2
